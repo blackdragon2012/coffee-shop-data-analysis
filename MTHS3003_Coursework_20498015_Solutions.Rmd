@@ -1,0 +1,222 @@
+---
+title: "MTHS3003_Coursework_20498015_Solutions"
+author: "Akshay Bhandari"
+date: "11 December 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+Coffee_Tuesday=read.csv("Coffee_Tuesday_20498015.csv")
+Coffee_early=read.csv("Coffee_early_20498015.csv")
+Coffee_weekend=read.csv("Coffee_weekend_20498015.csv")
+Coffee_income=read.csv("Coffee_income_20498015.csv")
+```
+
+1. Provide an exploratory analysis of the number of customers served in 5 minute intervals using the data
+provided in Coffee_Tuesday_20498015.csv .
+
+```{r}
+mean(Coffee_Tuesday$Number.served) #MEAN
+max(Coffee_Tuesday$Number.served) #MAXIMUM NUMBER OF CUSTOMERS VISITING IN A 5 MINUTE INTERVAL
+min(Coffee_Tuesday$Number.served) #MINIMUM NUMBER OF CUSTOMERS VISITING IN A 5 MINUTE INTERVAL
+summary(Coffee_Tuesday$Number.served) #SUMMARY OF THE DATA INCLUDING THE INTERQUARTILE RANGES
+var(Coffee_Tuesday$Number.served) #VARIANCE
+sd(Coffee_Tuesday$Number.served) #STANDARD DEVIATION
+
+timeslot1=Coffee_Tuesday$Number.served[1:24] #DATA DIVIDED FOR 8AM-10AM
+timeslot2=Coffee_Tuesday$Number.served[25:48] #DATA DIVIDED FOR 10AM-12PM
+timeslot3=Coffee_Tuesday$Number.served[49:72] #DATA DIVIDED FOR 12PM-2M
+timeslot4=Coffee_Tuesday$Number.served[73:96] #DATA DIVIDED FOR 2PM-4PM
+timeslot5=Coffee_Tuesday$Number.served[97:120] #DATA DIVIDED FOR 4PM-6PM
+
+sumtimeslot=0
+sumtimeslot[1]=sum(timeslot1)
+sumtimeslot[2]=sum(timeslot2)
+sumtimeslot[3]=sum(timeslot3)
+sumtimeslot[4]=sum(timeslot4)
+sumtimeslot[5]=sum(timeslot5)
+sumtimeslot
+
+meantimeslot=0
+meantimeslot[1]=mean(timeslot1)
+meantimeslot[2]=mean(timeslot2)
+meantimeslot[3]=mean(timeslot3)
+meantimeslot[4]=mean(timeslot4)
+meantimeslot[5]=mean(timeslot5)
+
+boxplot(timeslot1,timeslot2,timeslot3,timeslot4,timeslot5,xlab="Timings",ylab="No. of Customers",names=c("8am-10am","10am-12pm","12pm-2pm","2pm-4pm","4pm-6pm"),col=c("darkred"),border="blue")
+
+plot(meantimeslot[1:5],bg='red',col='blue',lwd=3,cex=3,pch=21,ylab="Mean No of Customers")
+text(1.2,6.5,"8am-10am")
+text(2,5,"10am-12pm")
+text(3,6,"12pm-2pm")
+text(4,5,"2pm-4pm")
+text(4.8,2.5,"4pm-6pm")
+```
+
+2. The coffee owner proposes that customer demand in a 5 minute interval follows a X ~ Po($\lambda$) distribution.
+Estimate the customer demand during the weekday early morning (8:30-9am) busy period using
+Coffee_early_20498015.csv. Due to staff and space constraints, the maximum number of customers
+that can be served in a 5 minute interval is 12. 
+
+a. Find the maximum likelihood estimate of $\lambda$.
+
+```{r}
+lambda=mean(Coffee_early$Number.served)
+round(lambda,3) #OBSERVED MEAN FROM THE DATA
+n=length(Coffee_early$Number.served)
+n #TOTAL NUMBER OF OBSERVATIONS
+t=sum(Coffee_early$Number.served) #TOTAL NUMBER OF CUSTOMERS VISITING THE COFFEE SHOP
+lam = seq(6, 10, by=.01) #SEQUENCE TO FIND THE LAMBDA VALUE IN
+like = dpois(t, n*lam) #LIKELIHOOD FUNCTION
+plot(lam, like, type="l", lwd=2)
+abline(v = lambda, col="red") #LINE AT MAXIMUM LIKELIHOOD VALUE
+maxlam=lam[like==max(like)] 
+maxlam #MLE
+```
+
+Note: Suppose that an extra member of staff would enable the coffee shop to serve an additional 3
+customers per 5 minute interval if there is the demand
+
+b. Estimate how often the extra member of staff will be busy.
+
+```{r}
+ppois(13,maxlam,lower.tail = FALSE,log=FALSE) #PROBABILITY OF GETTING 13 OR MORE CUSTOMERS IN A 5 MINUTE INTERVAL
+##CONCLUDED IN THE REPORT
+```
+
+c. Given that an extra member of staff would cost 20 per hour and the average profit per customer
+is 2.10, is it worth the owner having an extra member of staff between 8:30-9:00am?
+
+```{r}
+profitpercustomer= 3*2.1
+costofextrastaff=20
+profitearned=profitpercustomer-costofextrastaff/2
+##EXPLAINED IN THE REPORT
+```
+
+3. The coffee shop owner suspects that the early morning busy period varies by day of the week.
+
+a. Does the data in Coffee_early_20498015.csv support the coffee owners suspicions?
+
+```{r}
+earlymonday=Coffee_early$Number.served[Coffee_early$Day=='Monday']
+earlytuesday=Coffee_early$Number.served[Coffee_early$Day=='Tuesday']
+earlywednesday=Coffee_early$Number.served[Coffee_early$Day=='Wednesday']
+earlythursday=Coffee_early$Number.served[Coffee_early$Day=='Thursday']
+earlyfriday=Coffee_early$Number.served[Coffee_early$Day=='Friday']
+
+meanearly=0
+meanearly[1]=mean(earlymonday)
+meanearly[2]=mean(earlytuesday)
+meanearly[3]=mean(earlywednesday)
+meanearly[4]=mean(earlythursday)
+meanearly[5]=mean(earlyfriday)
+meanearly #VECTOR WITH MEAN VALUES FOR EACH WEEKDAYS
+
+mondaydata<-rep(NA,10) #VECTOR WITH 10 'NA' OBJECTS FOR EACH DAY
+tuesdaydata<-rep(NA,10)
+wednesdaydata<-rep(NA,10)
+thursdaydata<-rep(NA,10)
+fridaydata<-rep(NA,10)
+for(i in 1:10){
+  mondaydata[i]=sum(Coffee_early$Number.served[Coffee_early$Week == i & Coffee_early$Day == "Monday"]) 
+  tuesdaydata[i]=sum(Coffee_early$Number.served[Coffee_early$Week == i & Coffee_early$Day == "Tuesday"])
+  wednesdaydata[i]=sum(Coffee_early$Number.served[Coffee_early$Week == i & Coffee_early$Day == "Wednesday"])
+  thursdaydata[i]=sum(Coffee_early$Number.served[Coffee_early$Week == i & Coffee_early$Day == "Thursday"])
+  fridaydata[i]=sum(Coffee_early$Number.served[Coffee_early$Week == i & Coffee_early$Day == "Friday"])
+} #THIS LOOP STORES SUM OF ALL CUSTOMERS ON SPECIFIC WEEKDAYS , PER WEEK BASIS
+
+boxplot(mondaydata,tuesdaydata,wednesdaydata,thursdaydata,fridaydata,xlab="Days of week",ylab="Customers per week",names=c("Monday","Tuesday","Wednesday","Thursday","Friday"),col=c("darkred"),border="blue")
+
+boxplot(earlymonday,earlytuesday,earlywednesday,earlythursday,earlyfriday,xlab="Days of week",ylab="Customers per day",names=c("Monday","Tuesday","Wednesday","Thursday","Friday"),col=c("darkred"),border="blue")
+##CONCLUSIONS ABOUT THIS IS MADE IN THE RERPOT
+```
+
+b. How does the answer to question 3.(a) affect the conclusions drawn in question 2?
+
+```{r}
+#CONCLUSION GIVEN IN THE REPORT
+```
+
+4. The coffee shop owner is interested in weekend customer numbers. Use the data in Coffee_weekend_20498015.csv to address the following questions and discuss your conclusions. 
+
+a. Are the data consistent with the coffee shop owners assumption that the mean number of
+customers on Saturdays and Sundays are 250 and 230, respectively?
+
+```{r}
+data_saturday=Coffee_weekend$Saturday
+t.test(data_saturday , mu=250)#TESTING MEAN OF SATURDAY AGAINST THE MEAN 250
+data_sunday=Coffee_weekend$Sunday
+t.test(data_sunday , mu=230)#TESTING MEAN OF SUNDAY AGAINST THE MEAN 230
+```
+
+b. Are the data consistent with the coffee shop owners assumption that the mean difference in the
+number of customers between Saturday and Sunday is at least 20?
+
+```{r}
+t.test(data_saturday , data_sunday ,mu=20, alternative = "less")#TESTING MEAN DIFFERENCE BETWEEN SATURDAY AND SUNDAY
+```
+
+
+5. The coffee shop owner wants to know how income per day (response variable) depends on the following
+covariates: 
+
+. Day of the week
+
+. Mean number of staff working throughout the day
+
+. Number of meal options
+
+. Daily temperature (oC)
+
+. Term time (yes/no)
+
+a. Find the best model for predicting income using the data in Coffee_income_20498015.csv.
+
+```{r}
+income=Coffee_income$Income #LOADING INCOME DATA
+weekday=Coffee_income$Weekday #LOADING DAY OF THE WEEK DATA
+nostaff=Coffee_income$NoStaff #LOADING NUMBER OF STAFF DATA
+term=Coffee_income$Term #LOADING TERM DATA
+mealopt=Coffee_income$MealOpt #LOADING MEAL OPTIONS DATA
+temp=Coffee_income$Temp #LOADING TEMPERATURE DATA
+model<-lm(income~ weekday +nostaff + term + mealopt + temp) #MODEL WITH ALL COVARIATES
+summary(model)
+
+AIC(model) #AIC OF THE FULL MODEL
+
+bestmodel<-step(model)#STEP FUNCTION TO FIND THE BEST FIT MODEL
+summary(bestmodel)
+
+AIC(bestmodel)#AIC OF THE BEST FIT MODEL
+
+```
+
+b. Comment on the model fit and effect of the selected covariates on income.
+
+```{r}
+hist(bestmodel$residuals,xlab="Residuals",col = "darkred",main="",freq=FALSE)#HISTOGRAM OF RESIDUALS TO CHECK NORMLITY
+curve(dnorm(x,0,sd(bestmodel$residuals)),-300,300,col=4,add=TRUE) 
+
+plot(bestmodel$fitted.values,bestmodel$residuals,bg='red',col='blue',lwd=3,cex=3,pch=21,xlab="Fitted values",ylab="Residuals")
+##SCATTER PLOT TO CHECK HOMOGENITY 
+##COMMENTS MADE ARE IN THE REPORT
+```
+
+c. Estimate the level of income on a day with the following covariate information:
+
+A Saturday in term time with daily temperature 15.9oC, on average 5 members of staff working
+and 4 meal options.
+
+```{r}
+pred<-predict(model,newdata=data.frame(weekday='Saturday',term=1,temp=15.9,nostaff=5,mealopt=4))
+pred #PREDICTING INCOME AT THE ABOVE COVARIATES VALUES FOR OUR FULL MODEL
+predbestmodel<-predict(bestmodel,newdata=data.frame(weekday='Saturday',term=1,temp=15.9,nostaff=5,mealopt=4))
+predbestmodel #PREDICTING INCOME AT THE ABOVE COVARIATES VALUES FOR OUR BEST MODEL
+
+```
