@@ -10,3 +10,6 @@ We are asked to analyse 4 different datasets which are divided into 5 major task
 ▪ Performed hypothesis tests to identify peak hours to optimise staff and resource allocation.
 
 ▪ Implemented multiple linear regression to find the best model (using lm and step function) for predicting daily income.
+
+
+> Part of my module coursework (MTHS3003: Applied Statistics and Probability)
